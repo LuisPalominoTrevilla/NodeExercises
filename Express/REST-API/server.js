@@ -1,65 +1,43 @@
+// Import dependencies
 const express = require('express')
-const app = express()
+const logger = require('morgan')
 const bodyParser = require('body-parser')
+const errorHandler = require('errorhandler')
 
+// Define in-memory data store
+let store = {}
+store.accounts = []
+
+// Create express app
+let app = express()
+// apply middleware for body parsing, logging and error handling
+app.use(logger('dev'))
 app.use(bodyParser.json())
+app.use(errorHandler())
 
-/**
- * CRUD Functionality with minima Code
- * RESTful HTTP interface
- */
-
-let profile = {
-    username: 'luispalominot',
-    email: 'luispalominot@hotmail.com',
-    url: 'http://gotaroja.com'
-}
-
-// Get method
-app.get('/profile', (req, res) => {
-    res.send(profile)
+// Get accounts
+app.get('/accounts', (req, res) => {
+    res.status(200).send(store.accounts)
 })
 
-// Post method used to create new entries
-app.post('/profile', (req, res) => {
-    profile = req.body
-    console.log('created', profile)
-    // Send status and finish all the response
-    res.sendStatus(201)
+// Create an account 
+app.post('/accounts', (req, res) => {
+    let newAccount = req.body
+    let id = store.accounts.length
+    store.accounts.push(newAccount)
+    res.status(201).send({id: id})
 })
 
-// Put method used for complete or partial replacements
-app.put('/profile', (req, res) => {
-    // Merge fields
-    /**
-     * Object.assign() => used to copy the values of all
-     * enumerable own properties from one or more 
-     * source objects to a target object
-     */
-    Object.assign(profile, req.body)
-    console.log('updated', profile)
-    res.sendStatus(204)
+// Update account
+app.put('/accounts/:id', (req, res) => {
+    store.accounts[req.params.id] = req.body
+    res.status(200).send(store.accounts[req.params.id])
 })
 
-// Delete method used for removal of exsisting entities
-app.delete('/profile', (req, res) => {
-    // Simulate
-    profile = {}
-    console.log('deleted', profile)
-    res.sendStatus(204)
+// Remove account
+app.delete('/accounts/:id', (req, res) => {
+    store.accounts.splice(req.params.id, 1)
+    res.status(204).send()
 })
-
-/**
- * Other HTTP Requests available:
- * 
- *      app.patch() => Used for partial updates
- * 
- *      app.head() => Identical to GET requests without the body
- * 
- *      app.options() => Used to identify allowed methdos
- * 
- *  app.all() => Define request handler for ANY HTTP method
- *  app.all('*', fn) will be used to show 404: Not Found
- */
 
 app.listen(3000)
