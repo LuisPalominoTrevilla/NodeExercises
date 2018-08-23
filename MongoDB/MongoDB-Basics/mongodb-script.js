@@ -70,7 +70,7 @@ const removeDocument = (db, callback) => {
     // Get reference to edx-course-docs collection inside db
     const collection = db.collection('edx-course-docs')
     const name = 'Bob'
-    collection.removeOne(
+    collection.deleteOne(
         {name: name}
     ).then(result => {
         console.log(result.result.n)
