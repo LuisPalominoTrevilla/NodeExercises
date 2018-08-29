@@ -1,0 +1,174 @@
+
+show dbs
+db
+
+{
+	first_name: "Luis Palomino",
+	last_name: "Trevilla",
+	memberships: ["name1", "name2"],
+	address: {
+		street: "4th main street",
+		city: "Guadalajara"
+	},
+	contacts: [
+		{ name: "Brad", relationship: "friend"},
+		{ name: "Carlos", relationship: "Palomino"}
+	]
+}
+
+db.createUser({
+	user: "luis",
+	pwd: "themaster",
+	roles: ["readWrite", "dbAdmin"]
+});
+
+db.createCollection('customers');
+show collections
+
+db.customers.insert({
+	first_name: "Luis Palomino",
+	last_name: "Trevilla"
+});
+
+db.customers.find({});
+
+db.customers.insert([
+{
+	first_name: "Luis Palomino",
+	last_name: "Ramirez"
+},
+{
+	first_name: "Carlos Palomino",
+	last_name: "Trevilla"
+},
+{
+	first_name: "Celina Trevilla",
+	last_name: "Cantero"
+}
+]);
+
+db.customers.find().pretty();
+
+// Update entire document
+db.customers.update({first_name: "Carlos Palomino"}, {first_name: "EL SENIOR", last_name: "Palomino", gender: "male"});
+
+// Set operator to add new fields
+db.customers.update({first_name: "Celina Trevilla"}, {$set: {gender: "female"}});
+db.customers.update({first_name: "Celina Trevilla"}, {$set: {age: 45}});
+
+// Increment operator
+db.customers.update({first_name: "Celina Trevilla"}, {$inc: {age: 5}});
+
+// Remove fields from document
+db.customers.update({first_name: "Celina Trevilla"}, {$unset: {age: 1}});
+
+// Update document, if it doesn't exist then create it
+db.customers.update({first_name: "Jared Abud"}, {$set: {last_name: "Triana"}}, {upsert: true});
+db.customers.update({first_name: "Sebas"}, {last_name: "Cerna"}, {upsert: true});
+
+// Rename specific field
+db.customers.update({first_name: "Celina Trevilla"}, {$rename: {gender: "sex"}});
+
+// Remove documents
+db.customers.remove({first_name: "SAMATHA"});
+db.customers.remove({last_name: "Cerna"}, {justOne: true});
+
+db.customers.insertMany([
+	{
+		first_name: "Troy",
+		last_name: "Makons",
+		gender: "male",
+		age: 33,
+		address: {
+			street: "432 Essex st",
+			city: "Lawrence",
+			state: "MA"
+		},
+		memberships: ["mem1", "mem2"],
+		balance: 125.32
+	},
+	{
+		first_name: "Beth",
+		last_name: "Jenkins",
+		gender: "female",
+		age: 23,
+		address: {
+			street: "411 Blue st",
+			city: "Boston",
+			state: "MA"
+		},
+		memberships: ["mem3", "mem2"],
+		balance: 505.33
+	},
+	{
+		first_name: "Sharon",
+		last_name: "Thompson",
+		gender: "female",
+		age: 35,
+		address: {
+			street: "19 Willis st",
+			city: "Worchester",
+			state: "MA"
+		},
+		memberships: ["mem1", "mem2"],
+		balance: 99.99
+	},
+	{
+		first_name: "William",
+		last_name: "Jackson",
+		gender: "male",
+		age: 43,
+		address: {
+			street: "11 Albany st",
+			city: "Boston",
+			state: "MA"
+		},
+		memberships: ["mem1"],
+		balance: 333.23
+	},
+	{
+		first_name: "Timothy",
+		last_name: "Wilkins",
+		gender: "male",
+		age: 53,
+		address: {
+			street: "22 School st",
+			city: "Amesbury",
+			state: "MA"
+		},
+		memberships: ["mem3", "mem4"],
+		balance: 22.25
+	},
+]);
+
+// Find sharon
+db.customers.find({first_name: "Sharon"});
+// FInd two people
+db.customers.find({$or: [{first_name: "Sharon"}, {first_name: "Troy"}]});
+
+// Greater than or less than operators
+db.customers.find({age: {$gt: 40}}).pretty();
+db.customers.find({age: {$lt: 40}}).pretty();
+db.customers.find({age: {$gte: 20}}).pretty();
+db.customers.find({age: {$lte: 20}}).pretty();
+
+// Find customers depending on their city
+db.customers.find({"address.city": "Boston"});
+// Find customers depending on their membership
+db.customers.find({memberships: "mem1"});
+
+// Sort results (1 means ascending order)
+db.customers.find().sort({last_name: 1}).pretty();
+// (-1 means descending order)
+db.customers.find().sort({last_name: -1}).pretty();
+
+// Count results
+db.customers.find().count();
+db.customers.find({gender: "male"}).count();
+
+// Limit results
+db.customers.find().limit(4);
+
+db.customers.find().forEach((doc) => {
+	print("Customer Name: " + doc.first_name)
+});
